@@ -1,56 +1,95 @@
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDown, ArrowLeft, ArrowRight, Check, ChevronDown, Copy, Minus, Moon, Plus, ShoppingBag, Sun, X } from "lucide-react";
 
-const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="max-w-3xl text-center">
-        {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-8 font-body text-xs uppercase tracking-[0.35em] text-muted-foreground"
-        >
-          Define Your Presence
-        </motion.p>
+type Lang = "EN" | "PT";
+type Category = "All" | "Tops" | "Bottoms" | "Women" | "Accessories";
+type Product = { id:string; name:string; category:Exclude<Category,"All">; price:number; colors:string[]; sizes:string[]; image:string; colorImages?:Record<string,string>; stock?:Record<string,number>; description:string; descriptionPT:string };
+type CartItem = { key:string; id:string; name:string; price:number; color:string; size:string; quantity:number; image:string };
+type Coupon = { type:"percent"|"fixed"; value:number };
+type Customer = { name:string; phone:string; location:string; payment:string; status:string; notes:string };
 
-        {/* Main Slogan */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
-        >
-          What you wear speaks for you
-          <span className="block mt-2 italic">
-            and defines how the world treats you.
-          </span>
-        </motion.h1>
+const COMMUNITY_URL = "https://chat.whatsapp.com/CnEffGahKia2F0Y2F2mE6i?mode=gi_t";
+const ORDER_PHONE = "258851506799";
+const products:Product[] = [
+ {id:"baggy",name:"Baggy Sweatpants",category:"Bottoms",price:2400,colors:["Navy","Grey","Black"],sizes:["M","L","XL"],image:"https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=1000&q=85",stock:{"Navy|M":2,"Navy|L":3,"Navy|XL":1,"Grey|M":2,"Grey|L":3,"Grey|XL":1,"Black|M":2,"Black|L":3,"Black|XL":1},description:"Relaxed proportions. Everyday movement.",descriptionPT:"Proporções descontraídas. Movimento diário."},
+ {id:"quarter-zip",name:"Quarter Zip",category:"Tops",price:2400,colors:["Black","Grey"],sizes:["M","L","XL"],image:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=1000&q=85",description:"A clean layer with a considered silhouette.",descriptionPT:"Uma camada essencial com silhueta cuidada."},
+ {id:"crop-tee",name:"Crop Tee",category:"Tops",price:1400,colors:["White","Black"],sizes:["S","M","L","XL"],image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=85",description:"An everyday essential, redefined.",descriptionPT:"Um essencial do dia a dia, reinventado."},
+ {id:"regatta-tee",name:"Regatta Tee",category:"Tops",price:1080,colors:["Black","White"],sizes:["S","M","L","XL"],image:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=1000&q=85",description:"Minimal form. Maximum presence.",descriptionPT:"Forma minimalista. Presença máxima."},
+ {id:"trucker-hat",name:"Trucker Hat",category:"Accessories",price:2400,colors:["Pink","Black"],sizes:["ONE SIZE"],image:"https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1000&q=85",description:"The finishing detail.",descriptionPT:"O detalhe que completa o visual."},
+ {id:"crop-top",name:"Women's Crop Top",category:"Women",price:680,colors:["Black","White"],sizes:["S","M"],image:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1000&q=85",colorImages:{Black:"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1000&q=85",White:"https://images.unsplash.com/photo-1566206091558-7f218b696731?auto=format&fit=crop&w=1000&q=85"},stock:{"Black|S":1,"Black|M":1,"White|S":0,"White|M":2},description:"Made to move with you.",descriptionPT:"Feito para acompanhar o teu movimento."}
+];
+const words = {
+ EN:{announcement:"INDEPENDENT STREETWEAR · MADE TO MEAN MORE",navShop:"Shop",navStory:"Our point of view",community:"Join Community",view:"View Products",kicker:"LESS, BUT NEVER ORDINARY",hero1:"What you wear",hero2:"speaks for you.",heroBody:"A considered uniform for those who move differently. Made in Mozambique, worn your way.",scroll:"SCROLL TO DISCOVER",collection:"The collection",collectionSub:"Every piece says something. Make it yours.",categories:{All:"All",Tops:"Tops",Bottoms:"Bottoms",Women:"Women",Accessories:"Accessories"},add:"Choose options",from:"Select your details",color:"Colour",size:"Size",quantity:"Quantity",addCart:"Add to bag",soldOut:"Out of stock",bag:"Your bag",empty:"Your bag is waiting.",emptySub:"Find the pieces that speak for you.",continue:"Continue shopping",checkout:"Checkout",subtotal:"Subtotal",discount:"Discount applied",total:"Total",remove:"Remove",promo:"Promo code",apply:"Apply",invalid:"That code isn't valid.",applied:"Code applied successfully.",payment:"Payment details",copy:"Copy",copied:"Copied",fullName:"Full name",phone:"WhatsApp phone",location:"Delivery location in Mozambique",paymentMethod:"Payment method",paymentStatus:"Payment status",paid:"Paid — sending receipt",later:"Will pay upon delivery/confirmation",notes:"Additional notes",order:"Place order via WhatsApp",required:"Please complete your name, phone and delivery location.",communityNote:"Join the inner circle for early access and updates.",storyTitle:"A point of view, not a trend.",storyText:"Just Minimal is a Mozambican streetwear label built around presence, identity and the power of simplicity. Wear less. Mean more.",footer:"Made with intention in Mozambique.",paymentM:"M-Pesa",paymentE:"e-Mola",bank:"Millennium BIM",account:"Account",nib:"NIB",orderSummary:"Order summary",delivery:"Delivery details",orderNote:"Your order will open in WhatsApp for confirmation.",noStock:"Not enough stock for this variant."},
+ PT:{announcement:"STREETWEAR INDEPENDENTE · FEITO PARA SIGNIFICAR MAIS",navShop:"Loja",navStory:"A nossa visão",community:"Juntar-se à Comunidade",view:"Ver Produtos",kicker:"MENOS, MAS NUNCA COMUM",hero1:"O que vestes",hero2:"fala por ti.",heroBody:"Uma identidade pensada para quem se move de forma diferente. Feita em Moçambique, ao teu estilo.",scroll:"DESLIZA PARA DESCOBRIR",collection:"A coleção",collectionSub:"Cada peça diz algo. Faz dela tua.",categories:{All:"Tudo",Tops:"Tops",Bottoms:"Calças",Women:"Feminino",Accessories:"Acessórios"},add:"Escolher opções",from:"Escolhe os detalhes",color:"Cor",size:"Tamanho",quantity:"Quantidade",addCart:"Adicionar ao carrinho",soldOut:"Esgotado",bag:"O teu carrinho",empty:"O teu carrinho está à espera.",emptySub:"Encontra as peças que falam por ti.",continue:"Continuar a comprar",checkout:"Finalizar pedido",subtotal:"Subtotal",discount:"Desconto aplicado",total:"Total",remove:"Remover",promo:"Código promocional",apply:"Aplicar",invalid:"Código inválido.",applied:"Código aplicado com sucesso.",payment:"Dados de pagamento",copy:"Copiar",copied:"Copiado",fullName:"Nome completo",phone:"Telemóvel / WhatsApp",location:"Local de entrega em Moçambique",paymentMethod:"Método de pagamento",paymentStatus:"Estado do pagamento",paid:"Pago — vou enviar o comprovativo",later:"Pagarei na entrega/confirmação",notes:"Instruções adicionais",order:"Fazer pedido por WhatsApp",required:"Preenche o nome, telemóvel e local de entrega.",communityNote:"Junta-te à comunidade para acesso antecipado e novidades.",storyTitle:"Uma visão, não uma tendência.",storyText:"A Just Minimal é uma marca moçambicana de streetwear construída em torno da presença, identidade e poder da simplicidade. Veste menos. Significa mais.",footer:"Feito com intenção em Moçambique.",paymentM:"M-Pesa",paymentE:"e-Mola",bank:"Millennium BIM",account:"Conta",nib:"NIB",orderSummary:"Resumo do pedido",delivery:"Dados de entrega",orderNote:"O teu pedido será aberto no WhatsApp para confirmação.",noStock:"Stock insuficiente para esta variante."}
+};
+const money=(n:number)=>new Intl.NumberFormat("en-US",{maximumFractionDigits:0}).format(n)+" MZN";
+const couponBook:Record<string,Coupon>={COMMUNITY10:{type:"percent",value:10},JUST20:{type:"percent",value:20},FIXED500:{type:"fixed",value:500},JUST500:{type:"fixed",value:500}};
+const stockFor=(p:Product,c:string,s:string)=>p.stock ? (p.stock[c+"|"+s]??0) : 99;
+const colorName=(c:string,lang:Lang)=>lang==="EN"?c:(({Navy:"Azul escuro",Grey:"Cinza",Black:"Preto",White:"Branco",Pink:"Rosa"} as Record<string,string>)[c]||c);
 
-        {/* Divider */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="mx-auto my-10 h-px w-24 bg-foreground origin-center"
-        />
+const Index=()=>{
+ const [lang,setLang]=useState<Lang>(()=>(localStorage.getItem("jm-lang") as Lang)||"EN");
+ const [dark,setDark]=useState(()=>localStorage.getItem("jm-theme")==="dark");
+ const [category,setCategory]=useState<Category>("All");
+ const [selected,setSelected]=useState<Product|null>(null);
+ const [selectedColor,setSelectedColor]=useState("");
+ const [selectedSize,setSelectedSize]=useState("");
+ const [quantity,setQuantity]=useState(1);
+ const [cart,setCart]=useState<CartItem[]>(()=>{try{return JSON.parse(localStorage.getItem("jm-cart")||"[]") as CartItem[]}catch{return[]}});
+ const [drawer,setDrawer]=useState<"cart"|"checkout"|null>(null);
+ const [couponInput,setCouponInput]=useState("");
+ const [coupon,setCoupon]=useState<{code:string;rule:Coupon}|null>(null);
+ const [couponMessage,setCouponMessage]=useState("");
+ const [couponError,setCouponError]=useState(false);
+ const [notice,setNotice]=useState("");
+ const [customer,setCustomer]=useState<Customer>({name:"",phone:"",location:"",payment:"M-Pesa",status:"later",notes:""});
+ const t=words[lang];
+ useEffect(()=>{localStorage.setItem("jm-cart",JSON.stringify(cart))},[cart]);
+ useEffect(()=>{localStorage.setItem("jm-lang",lang);document.documentElement.lang=lang.toLowerCase()},[lang]);
+ useEffect(()=>{localStorage.setItem("jm-theme",dark?"dark":"light")},[dark]);
+ useEffect(()=>{if(!notice)return;const timer=window.setTimeout(()=>setNotice(""),2600);return()=>window.clearTimeout(timer)},[notice]);
+ const visible=useMemo(()=>category==="All"?products:products.filter(p=>p.category===category),[category]);
+ const subtotal=cart.reduce((s,i)=>s+i.price*i.quantity,0);
+ const discount=coupon?Math.min(subtotal,coupon.rule.type==="percent"?Math.round(subtotal*coupon.rule.value/100):coupon.rule.value):0;
+ const total=Math.max(0,subtotal-discount);
+ const cartCount=cart.reduce((s,i)=>s+i.quantity,0);
+ const openProduct=(p:Product)=>{setSelected(p);setSelectedColor(p.colors[0]);setSelectedSize(p.sizes[0]);setQuantity(1)};
+ const applyCoupon=()=>{const code=couponInput.trim().toUpperCase();if(!couponBook[code]){setCoupon(null);setCouponMessage(t.invalid);setCouponError(true);return}setCoupon({code,rule:couponBook[code]});setCouponMessage(t.applied);setCouponError(false)};
+ const addToCart=()=>{if(!selected||!selectedColor||!selectedSize)return;const available=stockFor(selected,selectedColor,selectedSize);const key=selected.id+"|"+selectedColor+"|"+selectedSize;if(quantity>available){setNotice(t.noStock);return}setCart(prev=>{const found=prev.find(i=>i.key===key);if(found){if(found.quantity+quantity>available){setNotice(t.noStock);return prev}return prev.map(i=>i.key===key?{...i,quantity:i.quantity+quantity}:i)}return [...prev,{key,id:selected.id,name:selected.name,price:selected.price,color:selectedColor,size:selectedSize,quantity,image:selected.colorImages?.[selectedColor]||selected.image}]});setSelected(null);setDrawer("cart")};
+ const changeQuantity=(key:string,delta:number)=>setCart(prev=>prev.map(i=>{if(i.key!==key)return i;const p=products.find(x=>x.id===i.id);return {...i,quantity:Math.max(1,Math.min(stockFor(p!,i.color,i.size),i.quantity+delta))}}));
+ const copyText=async(v:string)=>{try{await navigator.clipboard.writeText(v);setNotice(t.copied)}catch{setNotice(v)}};
+ const updateCustomer=(field:keyof Customer,value:string)=>setCustomer(prev=>({...prev,[field]:value}));
+ const placeOrder=()=>{if(!customer.name.trim()||!customer.phone.trim()||!customer.location.trim()||cart.length===0){setNotice(t.required);return}
+ const lines=cart.map((i,n)=>(n+1)+". "+i.name+" | "+colorName(i.color,lang)+" | "+i.size+" | Qty: "+i.quantity+" | "+money(i.price*i.quantity));
+ const msg=["JUST MINIMAL — ORDER REQUEST","",...lines,"","Subtotal: "+money(subtotal),"Promo code: "+(coupon?.code||"None"),"Discount: -"+money(discount),"TOTAL: "+money(total),"","Full name: "+customer.name,"WhatsApp phone: "+customer.phone,"Delivery location: "+customer.location,"Payment method: "+customer.payment,"Payment status: "+(customer.status==="paid"?t.paid:t.later),"Notes: "+(customer.notes.trim()||"—"),"","Please confirm availability and delivery details."].join("\n");
+ window.open("https://wa.me/"+ORDER_PHONE+"?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer")};
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.5 }}
-        >
-          <a
-            href="#collection"
-            className="inline-block bg-accent px-10 py-4 font-body text-sm font-semibold uppercase tracking-[0.25em] text-accent-foreground transition-opacity duration-300 hover:opacity-85"
-          >
-            Command the Room. Shop the Collection.
-          </a>
-        </motion.div>
-      </div>
-    </div>
-  );
+ return <div className={"jm-app "+(dark?"theme-dark":"theme-light")}>
+  <div className="announcement"><span>{t.announcement}</span><span className="announcement-mark">JM® — MZ</span></div>
+  <header className="site-header"><a className="wordmark" href="#top">JUST<span>MINIMAL</span><sup>®</sup></a><nav className="desktop-nav"><a href="#collection">{t.navShop}</a><a href="#story">{t.navStory}</a></nav><div className="header-actions"><div className="language-switch"><button className={lang==="EN"?"active":""} onClick={()=>setLang("EN")}>EN</button><span>/</span><button className={lang==="PT"?"active":""} onClick={()=>setLang("PT")}>PT</button></div><button className="icon-button" onClick={()=>setDark(!dark)} aria-label="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="bag-button" onClick={()=>setDrawer("cart")}><ShoppingBag size={18}/><span className="bag-label">{t.bag}</span><span className="bag-count">{cartCount}</span></button></div></header>
+  <main id="top">
+   <section className="hero"><div className="hero-copy"><p className="eyebrow"><span className="eyebrow-line"/>{t.kicker}</p><h1>{t.hero1}<br/><em>{t.hero2}</em></h1><p className="hero-description">{t.heroBody}</p><div className="hero-actions"><a className="button button-dark" href={COMMUNITY_URL} target="_blank" rel="noreferrer">{t.community}<ArrowRight size={16}/></a><a className="button button-outline" href="#collection">{t.view}<ArrowDown size={16}/></a></div><div className="hero-footnote"><span>01 / 06</span><span>MAPUTO, MOZAMBIQUE</span></div></div><div className="hero-visual"><img src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1600&q=90" alt="Editorial streetwear look"/><div className="hero-image-label"><span>THE EVERYDAY UNIFORM</span><span>EST. MMXXIV</span></div><div className="hero-vertical">DRESS YOUR POWER — JUST MINIMAL</div></div><div className="hero-scroll">{t.scroll}<span/></div></section>
+   <section id="collection" className="collection-section"><div className="section-heading"><div><p className="eyebrow">JM / 001 — OBJECTS OF EXPRESSION</p><h2>{t.collection}<span>.</span></h2></div><p>{t.collectionSub}</p></div><div className="catalog-toolbar"><div className="category-filters">{(["All","Tops","Bottoms","Women","Accessories"] as Category[]).map(c=><button key={c} onClick={()=>setCategory(c)} className={category===c?"filter-active":""}>{t.categories[c]}</button>)}</div><span className="product-count">0{visible.length} {lang==="EN"?"PIECES":"PEÇAS"}</span></div>
+    <div className="product-grid">{visible.map((p,index)=><article className="product-card" key={p.id}><button className="product-image-wrap" onClick={()=>openProduct(p)} aria-label={t.add+": "+p.name}><img src={p.image} alt={p.name} loading={index>2?"lazy":"eager"}/><span className="product-index">0{products.findIndex(x=>x.id===p.id)+1}</span><span className="quick-add"><Plus size={16}/> {t.add}</span></button><div className="product-meta"><div><h3>{p.name}</h3><p>{t.categories[p.category]}</p></div><strong>{money(p.price)}</strong></div><div className="product-colors">{p.colors.map(c=><span key={c} title={colorName(c,lang)} className={"color-dot color-"+c.toLowerCase().replace(" ","-")}/>)}</div></article>)}</div><div className="collection-bottom"><span>JUST MINIMAL®</span><span>{lang==="EN"?"DESIGNED TO BE FELT.":"FEITO PARA SER SENTIDO."}</span></div></section>
+   <section id="story" className="story-section"><div className="story-image"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85" alt="Streetwear editorial portrait" loading="lazy"/><span>MOZAMBIQUE / EVERYWHERE</span></div><div className="story-copy"><p className="eyebrow">THE JUST MINIMAL POINT OF VIEW</p><h2>{t.storyTitle}</h2><p>{t.storyText}</p><a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="text-link">{t.community}<ArrowRight size={16}/></a><div className="story-signature">WEAR LESS.<br/><em>MEAN MORE.</em></div></div></section>
+   <section className="community-strip"><div><p className="eyebrow">THE INNER CIRCLE</p><h2>{lang==="EN"?"Be part of the movement.":"Faz parte do movimento."}</h2><p>{t.communityNote}</p></div><a href={COMMUNITY_URL} target="_blank" rel="noreferrer" className="button button-light">{t.community}<ArrowRight size={16}/></a></section>
+  </main>
+  <footer className="site-footer"><a className="wordmark footer-wordmark" href="#top">JUST<span>MINIMAL</span><sup>®</sup></a><span>{t.footer}</span><span>© JUST MINIMAL 2026</span></footer>
+  {notice&&<div className="toast-message" role="status">{notice}</div>}
+  {selected&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null)}}><section className="product-modal" role="dialog" aria-modal="true" aria-label={selected.name}><button className="close-button modal-close" onClick={()=>setSelected(null)} aria-label="Close"><X size={20}/></button><div className="modal-product-image"><img src={selected.colorImages?.[selectedColor]||selected.image} alt={selected.name+" "+selectedColor}/></div><div className="modal-product-info"><p className="eyebrow">{t.from}</p><h2>{selected.name}</h2><p className="modal-price">{money(selected.price)}</p><p className="modal-description">{lang==="EN"?selected.description:selected.descriptionPT}</p>
+   <div className="option-group"><div className="option-title"><span>{t.color}</span><span>{colorName(selectedColor,lang)}</span></div><div className="swatch-options">{selected.colors.map(c=><button key={c} className={"swatch-option "+(selectedColor===c?"chosen":"")} onClick={()=>{setSelectedColor(c);setQuantity(1)}}><span className={"color-dot color-"+c.toLowerCase().replace(" ","-")}/>{colorName(c,lang)}{selectedColor===c&&<Check size={14}/>}</button>)}</div></div>
+   <div className="option-group"><div className="option-title"><span>{t.size}</span><span>{selectedSize}</span></div><div className="size-options">{selected.sizes.map(s=>{const available=stockFor(selected,selectedColor,s);return <button key={s} disabled={available<1} className={selectedSize===s?"chosen":""} onClick={()=>{setSelectedSize(s);setQuantity(1)}}>{s}</button>})}</div></div>
+   {stockFor(selected,selectedColor,selectedSize)<1&&<p className="stock-warning">{t.soldOut}</p>}<div className="modal-bottom"><div className="quantity-control"><button onClick={()=>setQuantity(Math.max(1,quantity-1))} aria-label="Decrease"><Minus size={15}/></button><span>{quantity}</span><button onClick={()=>setQuantity(Math.min(stockFor(selected,selectedColor,selectedSize),quantity+1))} disabled={quantity>=stockFor(selected,selectedColor,selectedSize)} aria-label="Increase"><Plus size={15}/></button></div><button className="button button-dark modal-add" onClick={addToCart} disabled={stockFor(selected,selectedColor,selectedSize)<1}>{stockFor(selected,selectedColor,selectedSize)<1?t.soldOut:t.addCart}<ArrowRight size={16}/></button></div></div></section></div>}
+  {drawer&&<div className="drawer-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setDrawer(null)}}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-label={drawer==="cart"?t.bag:t.checkout}><div className="drawer-header"><div>{drawer==="checkout"&&<button className="back-button" onClick={()=>setDrawer("cart")} aria-label="Back"><ArrowLeft size={18}/></button>}<p className="eyebrow">{drawer==="cart"?"YOUR SELECTION":"ALMOST YOURS"}</p><h2>{drawer==="cart"?t.bag:t.checkout}<span>.</span></h2></div><button className="close-button" onClick={()=>setDrawer(null)} aria-label="Close"><X size={20}/></button></div><div className="drawer-scroll">
+   {drawer==="cart"?cart.length===0?<div className="empty-cart"><ShoppingBag size={34} strokeWidth={1}/><h3>{t.empty}</h3><p>{t.emptySub}</p><button className="button button-dark" onClick={()=>{setDrawer(null);document.getElementById("collection")?.scrollIntoView({behavior:"smooth"})}}>{t.continue}<ArrowRight size={16}/></button></div>:<><div className="cart-items">{cart.map(i=><div className="cart-item" key={i.key}><img src={i.image} alt={i.name}/><div className="cart-item-info"><h3>{i.name}</h3><p>{colorName(i.color,lang)} / {i.size}</p><strong>{money(i.price*i.quantity)}</strong><div className="quantity-control small"><button onClick={()=>changeQuantity(i.key,-1)} aria-label="Decrease"><Minus size={13}/></button><span>{i.quantity}</span><button onClick={()=>changeQuantity(i.key,1)} aria-label="Increase"><Plus size={13}/></button></div></div><button className="remove-item" onClick={()=>setCart(prev=>prev.filter(x=>x.key!==i.key))} aria-label={t.remove}><X size={16}/></button></div>)}</div><PromoBox id="cart-promo" t={t} couponInput={couponInput} setCouponInput={setCouponInput} applyCoupon={applyCoupon} couponMessage={couponMessage} couponError={couponError} coupon={coupon} removeCoupon={()=>{setCoupon(null);setCouponInput("");setCouponMessage("")}}/><PriceSummary subtotal={subtotal} discount={discount} total={total} t={t}/><button className="button button-dark drawer-primary" onClick={()=>setDrawer("checkout")}>{t.checkout}<ArrowRight size={16}/></button><button className="continue-link" onClick={()=>{setDrawer(null);document.getElementById("collection")?.scrollIntoView({behavior:"smooth"})}}><ArrowLeft size={14}/>{t.continue}</button></>:<><div className="checkout-summary"><p className="eyebrow">{t.orderSummary}</p>{cart.map(i=><div key={i.key} className="checkout-line"><span>{i.quantity} × {i.name}<small>{colorName(i.color,lang)} / {i.size}</small></span><span>{money(i.price*i.quantity)}</span></div>)}<PriceSummary subtotal={subtotal} discount={discount} total={total} t={t} compact/></div><PromoBox id="checkout-promo" t={t} couponInput={couponInput} setCouponInput={setCouponInput} applyCoupon={applyCoupon} couponMessage={couponMessage} couponError={couponError} coupon={coupon} removeCoupon={()=>{setCoupon(null);setCouponInput("");setCouponMessage("")}}/>
+    <form className="checkout-form" onSubmit={e=>{e.preventDefault();placeOrder()}}><p className="eyebrow">{t.delivery}</p><label>{t.fullName}<input required value={customer.name} onChange={e=>updateCustomer("name",e.target.value)} placeholder={lang==="EN"?"Your full name":"O teu nome completo"}/></label><label>{t.phone}<input required type="tel" value={customer.phone} onChange={e=>updateCustomer("phone",e.target.value)} placeholder="+258 8X XXX XXXX"/></label><label>{t.location}<textarea required rows={2} value={customer.location} onChange={e=>updateCustomer("location",e.target.value)} placeholder={lang==="EN"?"City, neighbourhood, street / landmark":"Cidade, bairro, rua / ponto de referência"}/></label><label>{t.paymentMethod}<span className="select-wrap"><select value={customer.payment} onChange={e=>updateCustomer("payment",e.target.value)}><option>M-Pesa</option><option>e-Mola</option><option>Millennium BIM</option></select><ChevronDown size={15}/></span></label><label>{t.paymentStatus}<span className="select-wrap"><select value={customer.status} onChange={e=>updateCustomer("status",e.target.value)}><option value="paid">{t.paid}</option><option value="later">{t.later}</option></select><ChevronDown size={15}/></span></label><label>{t.notes}<textarea rows={2} value={customer.notes} onChange={e=>updateCustomer("notes",e.target.value)} placeholder={lang==="EN"?"Anything we should know? (optional)":"Alguma informação adicional? (opcional)"}/></label>
+     <div className="payment-details"><p className="eyebrow">{t.payment}</p><CopyRow label={t.paymentM} value="85 150 6799 (João Massingue)" copyText={copyText} copyLabel={t.copy}/><CopyRow label={t.paymentE} value="87 467 7196 (João de Melo)" copyText={copyText} copyLabel={t.copy}/><CopyRow label={t.bank} value="1253924142" extra="000100000125392414257" copyText={copyText} copyLabel={t.copy} accountLabel={t.account} nibLabel={t.nib}/></div><p className="order-note">{t.orderNote}</p><button className="button button-dark drawer-primary" type="submit">{t.order}<ArrowRight size={16}/></button></form></>}
+  </div></aside></div>}
+ </div>
 };
 
+type Texts=typeof words.EN;
+function PriceSummary({subtotal,discount,total,t,compact=false}:{subtotal:number;discount:number;total:number;t:Texts;compact?:boolean}){return <div className={"price-summary "+(compact?"compact":"")}><div><span>{t.subtotal}</span><span>{money(subtotal)}</span></div>{discount>0&&<div className="discount-row"><span>{t.discount}</span><span>−{money(discount)}</span></div>}<div className="total-row"><strong>{t.total}</strong><strong>{money(total)}</strong></div></div>}
+function PromoBox({id,t,couponInput,setCouponInput,applyCoupon,couponMessage,couponError,coupon,removeCoupon}:{id:string;t:Texts;couponInput:string;setCouponInput:(v:string)=>void;applyCoupon:()=>void;couponMessage:string;couponError:boolean;coupon:{code:string;rule:Coupon}|null;removeCoupon:()=>void}){return <div className="promo-box"><label htmlFor={id}>{t.promo}</label><div className="promo-input-row"><input id={id} value={couponInput} onChange={e=>setCouponInput(e.target.value)} placeholder="COMMUNITY10"/><button onClick={applyCoupon} type="button">{t.apply}</button></div>{couponMessage&&<p className={couponError?"coupon-feedback error":"coupon-feedback"}>{couponMessage}</p>}{coupon&&<p className="applied-code"><Check size={14}/>{coupon.code}<button type="button" onClick={removeCoupon}><X size={13}/>{t.remove}</button></p>}</div>}
+function CopyRow({label,value,extra,copyText,copyLabel,nibLabel}:{label:string;value:string;extra?:string;copyText:(v:string)=>void;copyLabel:string;accountLabel?:string;nibLabel?:string}){const[copied,setCopied]=useState(false);return <div className="payment-row"><div><span>{label}</span><strong>{value}</strong>{extra&&<small>NIB: {extra}</small>}</div><button type="button" onClick={()=>{copyText(extra?value+" | NIB "+extra:value);setCopied(true);window.setTimeout(()=>setCopied(false),1500)}} aria-label={copyLabel}>{copied?<Check size={15}/>:<Copy size={15}/>}<span>{copied?"✓":copyLabel}</span></button></div>}
 export default Index;
