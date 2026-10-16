@@ -29,6 +29,7 @@ const colorName=(c:string,lang:Lang)=>lang==="EN"?c:(({Navy:"Azul escuro",Grey:"
 
 const Index=()=>{
  const [lang,setLang]=useState<Lang>(()=>(localStorage.getItem("jm-lang") as Lang)||"EN");
+ const [gateOpen,setGateOpen]=useState(true);
  const [dark,setDark]=useState(()=>localStorage.getItem("jm-theme")==="dark");
  const [category,setCategory]=useState<Category>("All");
  const [selected,setSelected]=useState<Product|null>(null);
@@ -65,6 +66,7 @@ const Index=()=>{
  window.open("https://wa.me/"+ORDER_PHONE+"?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer")};
 
  return <div className={"jm-app "+(dark?"theme-dark":"theme-light")}>
+  {gateOpen&&<div className="access-gate" role="dialog" aria-modal="true" aria-label="Just Minimal access"><div className="gate-grain"/><div className="gate-top"><span>JM®</span><span>INDEPENDENT STREETWEAR / MOZAMBIQUE</span><span>EST. MMXXIV</span></div><div className="gate-center"><p className="gate-kicker"><span/> PRIVATE ACCESS <span/></p><div className="gate-logo">JUST<span>MINIMAL</span><sup>®</sup></div><h1>{lang==="EN"?"Not for everyone.":"Não é para todos."}<br/><em>{lang==="EN"?"Made for your kind.":"Feito para os teus."}</em></h1><p className="gate-copy">{lang==="EN"?"A different point of view starts here. Enter the world of Just Minimal or connect with our community.":"Uma perspectiva diferente começa aqui. Entra no universo Just Minimal ou liga-te à nossa comunidade."}</p><div className="gate-actions"><button className="gate-enter" onClick={()=>setGateOpen(false)}>{lang==="EN"?"ENTER WEBSITE":"ENTRAR NO WEBSITE"}<ArrowRight size={17}/></button><a className="gate-whatsapp" href={COMMUNITY_URL} target="_blank" rel="noreferrer"><span className="whatsapp-mark">↗</span>{lang==="EN"?"JOIN WHATSAPP COMMUNITY":"ENTRAR NA COMUNIDADE WHATSAPP"}</a></div><div className="gate-status"><span className="status-dot"/> {lang==="EN"?"ACCESS AVAILABLE":"ACESSO DISPONÍVEL"}<span>—</span>{lang==="EN"?"MAPUTO / EVERYWHERE":"MAPUTO / TODO O LADO"}</div></div><div className="gate-bottom"><span>WEAR LESS. MEAN MORE.</span><span>J.M. / 001</span><span>© JUST MINIMAL 2026</span></div></div>}
   <div className="announcement"><span>{t.announcement}</span><span className="announcement-mark">JM® — MZ</span></div>
   <header className="site-header"><a className="wordmark" href="#top">JUST<span>MINIMAL</span><sup>®</sup></a><nav className="desktop-nav"><a href="#collection">{t.navShop}</a><a href="#story">{t.navStory}</a></nav><div className="header-actions"><div className="language-switch"><button className={lang==="EN"?"active":""} onClick={()=>setLang("EN")}>EN</button><span>/</span><button className={lang==="PT"?"active":""} onClick={()=>setLang("PT")}>PT</button></div><button className="icon-button" onClick={()=>setDark(!dark)} aria-label="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="bag-button" onClick={()=>setDrawer("cart")}><ShoppingBag size={18}/><span className="bag-label">{t.bag}</span><span className="bag-count">{cartCount}</span></button></div></header>
   <main id="top">
