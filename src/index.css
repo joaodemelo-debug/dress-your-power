@@ -608,3 +608,17 @@ body{overscroll-behavior-y:none}
   .jm-community__reassurance { max-width: 300px; font-size: 9px; }
   .jm-community__description { font-size: 9px; }
 }
+
+
+/* Product photography frames: consistent square format across all screen sizes */
+.jm-app .product-image-wrap {
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 0 !important;
+  overflow: hidden;
+}
+.jm-app .product-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0 !important;
+}
